@@ -11,10 +11,11 @@
 	<groupId>LoginRegistration</groupId>
 	<artifactId>AIMORC</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>AIMORC</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>14</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
