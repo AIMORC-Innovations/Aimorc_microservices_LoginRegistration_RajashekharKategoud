@@ -12,7 +12,10 @@ import com.LoginRegistration.entity.Login;
 
 @Repository
 public interface LoginRepository extends JpaRepository<Login, Integer> {
-	public Optional<Login> findByUsername(String username);
+	public Optional<Login> findByUsername(String username); 
+	
+	@Query(value = "select count(*) from login where username=:username", nativeQuery = true)
+	public Integer findUsername(String username);
 
 	public Optional<Login>findByUsernameAndPassword(String username, String password);
 

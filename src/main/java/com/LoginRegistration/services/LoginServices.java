@@ -3,6 +3,7 @@ package com.LoginRegistration.services;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -25,15 +26,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import com.LoginRegistration.Exception.UserNotFoundException;
 import com.LoginRegistration.Repository.LoginRepository;
 import com.LoginRegistration.Repository.RegisterRepository;
+import com.LoginRegistration.Repository.UserAddressRepository;
 import com.LoginRegistration.entity.Password;
 import com.LoginRegistration.entity.Constants;
 import com.LoginRegistration.entity.Login;
 import com.LoginRegistration.entity.Profile;
 import com.LoginRegistration.entity.Register;
 import com.LoginRegistration.entity.Userdata;
+import com.LoginRegistration.entity.UserAddress;
 
 @Service
 public class LoginServices implements UserDetailsService {
@@ -46,6 +50,10 @@ public class LoginServices implements UserDetailsService {
 
 	@Autowired
 	private RegisterRepository registerRepository;
+	
+	@Autowired
+	private UserAddressRepository useraddressrepository;
+	
 	
 	
 	@Override
@@ -180,33 +188,123 @@ public class LoginServices implements UserDetailsService {
 		profile.setPhonenum(register.getPhonenum());
 		profile.setGender(register.getGender());
 		profile.setAddress(register.getAddress());
+		profile.setAddress1(register.getAddress1());
+		profile.setCity(register.getCity());
+		profile.setState(register.getState());
+		profile.setCountry(register.getCountry());
+		profile.setZip(register.getZip());
 		return profile;
 	}
+	
+	public Map<String, Object> getUserAddressDetails(String sessionusername) throws UserNotFoundException {
+		int userid = loginRepository.findByUsername(sessionusername).get().getUserid();
+		Map<String, Object> allAddress = new HashMap<String, Object>(); //List<Map<String, Object>> allAddress = new HashMap<String, Object>();
+		try {
+			List<Map<String, Object>> alladdresslist = useraddressrepository.findById(userid);
+			for (Map<String, Object> eachaddress : alladdresslist) {
+				int addressId = (int) eachaddress.get("address_id");
+				String address = (String) eachaddress.get("address");
+				String address1 = (String) eachaddress.get("address1");
+				String city = (String) eachaddress.get("city");
+				String state = (String) eachaddress.get("state");
+				String country = (String) eachaddress.get("country");
+				String zip =  (String) eachaddress.get("zip");
+				
+//				List<Map<String, Object>> allAddressBasedOnUserId = useraddressrepository.findByUserId(addressId, userid);
+				Map<String, Object> eachAddressMap = new HashMap<String, Object>();
+				eachAddressMap.put("addressId", addressId);
+				eachAddressMap.put("address", address); //allAddressBasedOnUserId //alladdresslist
+				eachAddressMap.put("address1", address1);
+				eachAddressMap.put("city", city);
+				eachAddressMap.put("state", state);
+				eachAddressMap.put("country", country);
+				eachAddressMap.put("zip", zip);
+				//eachAddressMap.put("alladdresslist", alladdresslist);
+				String aid = String.valueOf(addressId);
+				allAddress.put(aid, eachAddressMap); //eachAddressMap
+				System.out.println("alladdresslist" + alladdresslist);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("allAddress" + allAddress);
+		return allAddress; //allAddress
+	}
+	
 
 	@Transactional
 	public ResponseEntity<String> updateuserdetails(Profile profile) {
 		int userid = loginRepository.findByUsername(profile.getUsername()).get().getUserid();
 		registerRepository.updateDetails(profile.getFirstname(), profile.getLastname(), profile.getDob(),
-				profile.getGender(), profile.getPhonenum(), profile.getAddress(), userid);
+				profile.getGender(), profile.getPhonenum(),  userid); //profile.getAddress(), profile.getAddress1(), profile.getCity(), profile.getState(), profile.getCountry(), profile.getZip(),  
 		return new ResponseEntity<String>("Details updated succesfully", HttpStatus.OK);
 
 	}
+	
+	public ResponseEntity<String> updateuseraddressdetails(Profile profile ) {
+		int userid = loginRepository.findByUsername(profile.getUsername()).get().getUserid();
+		useraddressrepository.updateDetails(profile.getAddress(), profile.getAddress1(),
+				profile.getCity(), profile.getState(), profile.getCountry(), profile.getZip(), userid);
+		return new ResponseEntity<String>("Details updated succesfully", HttpStatus.OK);
+	}
+	
+	public UserAddress adduseraddressdetails(Profile userData, int userid) {
+		// TODO Auto-generated method stub
+		UserAddress useraddress=new UserAddress();
+		useraddress.setUserid(userid);
+		useraddress.setAddress(userData.getAddress());
+		useraddress.setAddress1(userData.getAddress1());
+		useraddress.setCity(userData.getCity());
+		useraddress.setState(userData.getState());
+		useraddress.setCountry(userData.getCountry());
+		useraddress.setZip(userData.getZip());
+		return useraddressrepository.save(useraddress);
+	}
+	
+	public ResponseEntity<String> deleteAddress(UserAddress userAddress, int userid) {
+		System.out.println("addressId " + userAddress.getAddress_id());
+		useraddressrepository.deleteAddressDetails(userAddress.getAddress_id(), userid);
+		return new ResponseEntity<String>("Details updated succesfully", HttpStatus.OK);
+	}
+	
+	public ResponseEntity<String> editAddress(UserAddress userAddress, int userid) {
+		useraddressrepository.updateAddressDetails(userAddress.getAddress(), userAddress.getAddress1(),
+				userAddress.getCity(), userAddress.getState(), userAddress.getCountry(), userAddress.getZip(), userAddress.getAddress_id(), userid);
+		return new ResponseEntity<String>("Details updated succesfully", HttpStatus.OK);
+	}
+	
 
 	public boolean registeruser(Userdata newuser) {
 		Login login = new Login();
 		Register register = new Register();
+		UserAddress useraddress=new UserAddress();
+		
 		
 		String encryptedpassword = getEncodedString(newuser.getPassword());
-		Optional<Login> existingusername = loginRepository.findByUsername(newuser.getUsername());
+		Optional<Login> existingusername = loginRepository.findByUsername(newuser.getUsername()); 
+		//String existingUsername = existingusername.map(Login::toString).orElse(null);
+		Integer existingUsername = loginRepository.findUsername(newuser.getUsername());
 		login.setUsername(newuser.getUsername());
 		login.setPassword(encryptedpassword);
 		login.setLastlogin(newuser.getCreated_on());
-		if (login.getUsername().equals(existingusername)) {
+		
+		System.out.println("existingusername " + existingusername);
+		System.out.println("existingUsername " + existingUsername);
+		if(existingUsername==1) { //login.getUsername().equals(existingUsername) or existingUsername==1
 			new ResponseEntity<String>("User already exists Please Login!", HttpStatus.ACCEPTED);
+			System.out.println("User already exists");
 			return false;
-		}
+		}else {
 		loginRepository.save(login);
+
 		int userid = getUserId(login.getUsername());
+		useraddress.setUserid(userid);
+		useraddress.setAddress(newuser.getAddress());
+		useraddress.setAddress1(newuser.getAddress1());
+		useraddress.setCity(newuser.getCity());
+		useraddress.setState(newuser.getState());
+		useraddress.setCountry(newuser.getCountry());
+		useraddress.setZip(newuser.getZip());
 		register.setUserid(userid);
 		register.setFirstname(newuser.getFirstname());
 		register.setLastname(newuser.getLastname());
@@ -214,13 +312,20 @@ public class LoginServices implements UserDetailsService {
 		register.setGender(newuser.getGender());
 		register.setPhonenum(newuser.getPhonenum());
 		register.setAddress(newuser.getAddress());
+		register.setAddress1(newuser.getAddress1());
+		register.setCity(newuser.getCity());
+		register.setState(newuser.getState());
+		register.setCountry(newuser.getCountry());
+		register.setZip(newuser.getZip());
 		register.setCreated_on(newuser.getCreated_on());
 		register.setSecurity_id(newuser.getSecurity_id());
 		register.setSecurity_answer(newuser.getSecurity_answer());
 		registerRepository.save(register);
+		useraddressrepository.save(useraddress);
 		sendEmail(constants.message, constants.subject, login.getUsername(),constants. from);
 		new ResponseEntity<String>("success!", HttpStatus.ACCEPTED);
 		return true;
+		}
 	}
 
 	private static void sendEmail(String message, String subject, String username, String from) {
@@ -258,6 +363,11 @@ public class LoginServices implements UserDetailsService {
 			e.printStackTrace();
 		}
 	}
+	
+	public UserAddress updatePickUpAddr(String city, String country,String address, String address1, String state, String zip,int userid) {
+		// TODO Auto-generated method stub
+		return useraddressrepository.saveAddress(address,address1,country,city,state,zip,userid);
+		}
 
 	
 

@@ -25,13 +25,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import com.LoginRegistration.Exception.UserNotFoundException;
 import com.LoginRegistration.Repository.LoginRepository;
+import com.LoginRegistration.Repository.UserAddressRepository;
 import com.LoginRegistration.entity.JwtRequest;
 import com.LoginRegistration.entity.JwtResponse;
 import com.LoginRegistration.entity.Login;
 import com.LoginRegistration.entity.Password;
 import com.LoginRegistration.entity.Profile;
+import com.LoginRegistration.entity.UserAddress;
 import com.LoginRegistration.entity.Userdata;
 import com.LoginRegistration.helper.JWTUtil;
 import com.LoginRegistration.services.LoginServices;
@@ -48,9 +51,18 @@ public class LoginController {
 
 	@Autowired
 	private JWTUtil jwtutil;
+	
+	@Autowired
+	private LoginRepository loginRepository;
+	
+	@Autowired
+	private UserAddressRepository useraddressrepository;
+	
 
 	@Autowired
 	private AuthenticationManager authenicationManager;
+	
+	RestTemplate restTemplate = new RestTemplate();
 
 	String sessionusername;
 
@@ -155,6 +167,18 @@ public class LoginController {
 		Profile profiledetails = loginservices.getProfileDetails((String) tokenUsername);
 		return profiledetails;
 	}
+	
+	@PostMapping("/userAddressProfile")
+	@ResponseBody
+	public Map<String, Object> getUserAddressDetails(@RequestBody JwtResponse jwtresponse, HttpServletResponse response)
+			throws UserNotFoundException, IOException {
+		Object tokenUsername = decodeToken(jwtresponse.getToken());
+		Map<String, Object> useraddressdetails = loginservices.getUserAddressDetails((String) tokenUsername);
+
+		System.out.println("controller" + useraddressdetails);
+		return useraddressdetails; //useraddressdetails
+	}
+	
 
 	@PostMapping("/updateProfileDetails")
 	@ResponseBody
@@ -164,4 +188,60 @@ public class LoginController {
 		profile.setUsername((String) tokenUsername);
 		return this.loginservices.updateuserdetails(profile);
 	}
+	
+	
+	@PostMapping("/updateUserAddressDetails")
+	@ResponseBody
+	public ResponseEntity<String> updateuseraddressdetails(@RequestBody Profile profile, HttpServletRequest request)
+			throws UserNotFoundException {
+		Object tokenUsername = decodeToken(profile.getToken());
+		profile.setUsername((String) tokenUsername);
+		return this.loginservices.updateuseraddressdetails(profile);
+	}
+	@PostMapping("/deleteAddress")
+	@ResponseBody
+	public ResponseEntity<String> deleteAddress(@RequestBody UserAddress userAddress, HttpServletRequest request)throws UserNotFoundException{
+		String token = userAddress.getToken();
+		String tokenUsername = (String) decodeToken(token);
+		int result = getUserId(tokenUsername);
+		int userid= result;
+		System.out.println("userid  "+userid);
+		System.out.println(userAddress);
+		return this.loginservices.deleteAddress(userAddress, userid);
+	}
+	
+	@PostMapping("/editAddress")
+	@ResponseBody
+	public ResponseEntity<String> editAddress(@RequestBody UserAddress userAddress, HttpServletRequest request) throws UserNotFoundException{ //Userdata userData
+		String token = userAddress.getToken();
+		String tokenUsername = (String) decodeToken(token);
+		int result = getUserId(tokenUsername);
+		int userid= result;
+		System.out.println("userid  "+userid);
+		System.out.println(userAddress);
+        return this.loginservices.editAddress(userAddress, userid);
+	}  
+	
+	
+	@RequestMapping(value = "/addAddress", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public void schedulingPickUpAddr(@RequestBody Profile userData) throws UserNotFoundException{ //Userdata userData
+		System.out.println("1");   
+		String token = userData.getToken();
+		String tokenUsername = (String) decodeToken(token);
+		int result = getUserId(tokenUsername);
+		int userid= result;
+		
+		Profile profile = new Profile();
+		Integer numberOfAddress = useraddressrepository.fetchNumberOfAddress(userid);	
+		System.out.println(numberOfAddress);
+		System.out.println("4");
+		if(numberOfAddress<5) {
+			loginservices.adduseraddressdetails(userData, userid);
+		}else {
+			System.out.println("User can't save more than 5 address");
+		}
+	}  
+	
+	
 }

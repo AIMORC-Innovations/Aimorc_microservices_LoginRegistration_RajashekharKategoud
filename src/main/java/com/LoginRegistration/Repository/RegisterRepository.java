@@ -15,9 +15,10 @@ public Register findById(@Param("userid") int userid);
 
 
 	@Modifying
-	@Query(value = "UPDATE registration set firstname=:firstname,lastname=:lastname,dob=:dob,gender=:gender,phonenum=:phonenum, address=:address where userid=:userid", nativeQuery = true)
+	@Query(value = "UPDATE registration set firstname=:firstname,lastname=:lastname,dob=:dob,gender=:gender,phonenum=:phonenum where userid=:userid", nativeQuery = true) //address=:address, address1=:address1, city=:city, state=:state, country=:country, zip=:zip
 	public void updateDetails(@Param("firstname") String firstname, @Param("lastname") String lastname,
 			@Param("dob") String dob, @Param("gender") String gender, @Param("phonenum") String phonenum,
-			@Param("address") String address, @Param("userid") int userid);
-
+			@Param("userid") int userid);
+  //@Param("address") String address, @Param("address1") String address1, @Param("city") String city, 
+	//@Param("state") String state, @Param("country") String country, @Param("zip") String zip,
 }

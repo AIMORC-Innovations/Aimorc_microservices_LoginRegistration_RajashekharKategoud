@@ -17,4 +17,9 @@ public class Profile {
 	private String gender;
 	private String phonenum;
 	private String address;
+	private String address1;
+	private String city;
+	private String state;
+	private String country;
+	private String zip;
 }

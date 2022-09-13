@@ -16,6 +16,11 @@ public class Userdata {
 	private String dob;
 	private String gender;
 	private String address;
+	private String address1;
+	private String city;
+	private String state;
+	private String country;
+	private String zip;
 	private String phonenum;
 	private String created_on;
 	private int security_id;

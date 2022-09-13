@@ -27,6 +27,11 @@ public class Register {
 	private String gender;
 	private String phonenum;
 	private String address;
+	private String address1;
+	private String city;
+	private String state;
+	private String country;
+	private String zip;
 	private int security_id;
 	private String security_answer;
 	private String created_on;
