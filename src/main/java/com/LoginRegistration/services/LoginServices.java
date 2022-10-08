@@ -59,8 +59,11 @@ public class LoginServices implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Optional<Login> logins = this.loginRepository.findByUsername(username);
+		System.out.println(logins+"logins");
 		if (logins.get().getUsername().equals(username)) {
 			String str = logins.get().getPassword();
+			String role = logins.get().getRole();
+			System.out.println(role+"-role-");
 			Base64.Decoder decoder = Base64.getDecoder();
 			String dStr = new String(decoder.decode(str)); 
 			
@@ -71,9 +74,19 @@ public class LoginServices implements UserDetailsService {
 	}
 	 
 	
-	public int getUserId(String username) {
+	public int getUserId(String username)  {
 		int userid = loginRepository.findByUsername(username).get().getUserid();
 		return userid;
+	}
+	
+
+	public Login getRole(String username) throws UsernameNotFoundException{
+		Login logins = this.loginRepository.findRole(username);
+		System.out.println(logins+"---");
+		//String role = logins.get().getRole();
+		//System.out.println("role   "+role);
+		return logins;
+		//return new User(logins.get().getUsername(), logins.get().getRole(), new ArrayList<>());
 	}
 	
 

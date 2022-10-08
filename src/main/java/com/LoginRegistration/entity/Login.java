@@ -29,6 +29,7 @@ public class Login {
 	private String username;
 	private String password;
 	private String lastlogin;
+	private String role;
 
 	public Login(int userid) {
 		super();

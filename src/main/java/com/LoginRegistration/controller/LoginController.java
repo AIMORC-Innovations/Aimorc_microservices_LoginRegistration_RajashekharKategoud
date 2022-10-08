@@ -82,10 +82,23 @@ public class LoginController {
 		this.authenicationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(login.getUsername(), login.getPassword()));
 		UserDetails userdetails = this.loginservices.loadUserByUsername(login.getUsername());
+		System.out.println("role "+login.getRole());
+		System.out.println("UserDetails ---> "+userdetails);
 		String token = this.jwtutil.generateToken(userdetails);
 		String username = (String) decodeToken(token);
 		loginRepo.updateLastLogin(username, login.getLastlogin());
 		return ResponseEntity.ok(new JwtResponse(token));
+	}
+	
+	@RequestMapping(value="/userRole", method = RequestMethod.POST)
+	public @ResponseBody Login userRole(@RequestBody Login login, HttpServletRequest response)throws Exception {
+		System.out.println("login---->"+login);
+		Login userdetails = this.loginservices.getRole(login.getUsername());
+		System.out.println("User Details----> " +userdetails.getRole());
+		System.out.println(userdetails);
+		//String token = this.jwtutil.generateToken(userdetails);
+		//return ResponseEntity.ok(new JwtResponse(token));
+		return userdetails;
 	}
 
 	@PostMapping("/newUserRegistration")

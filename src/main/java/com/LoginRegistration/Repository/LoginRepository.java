@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import com.LoginRegistration.entity.Login;
@@ -16,6 +16,9 @@ public interface LoginRepository extends JpaRepository<Login, Integer> {
 	
 	@Query(value = "select count(*) from login where username=:username", nativeQuery = true)
 	public Integer findUsername(String username);
+	
+	@Query(value = "select * from login where username=:username", nativeQuery = true)
+	public Login findRole(String username);
 
 	public Optional<Login>findByUsernameAndPassword(String username, String password);
 
