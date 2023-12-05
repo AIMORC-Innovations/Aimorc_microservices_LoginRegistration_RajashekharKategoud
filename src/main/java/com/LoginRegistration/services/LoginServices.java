@@ -300,6 +300,7 @@ public class LoginServices implements UserDetailsService {
 		login.setUsername(newuser.getUsername());
 		login.setPassword(encryptedpassword);
 		login.setLastlogin(newuser.getCreated_on());
+		login.setRole("user");
 		
 		System.out.println("existingusername " + existingusername);
 		System.out.println("existingUsername " + existingUsername);
@@ -335,7 +336,7 @@ public class LoginServices implements UserDetailsService {
 		register.setSecurity_answer(newuser.getSecurity_answer());
 		registerRepository.save(register);
 		useraddressrepository.save(useraddress);
-		sendEmail(constants.message, constants.subject, login.getUsername(),constants. from);
+//		sendEmail(constants.message, constants.subject, login.getUsername(),constants. from);
 		new ResponseEntity<String>("success!", HttpStatus.ACCEPTED);
 		return true;
 		}

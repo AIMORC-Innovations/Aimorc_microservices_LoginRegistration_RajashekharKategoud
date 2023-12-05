@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.LoginRegistration.Exception.UserNotFoundException;
 import com.LoginRegistration.Repository.LoginRepository;
@@ -40,7 +41,9 @@ import com.LoginRegistration.helper.JWTUtil;
 import com.LoginRegistration.services.LoginServices;
 import com.google.gson.Gson;
 
-@Controller
+
+//@Controller
+@RestController 
 @CrossOrigin("*")
 public class LoginController {
 	@Autowired
@@ -73,6 +76,8 @@ public class LoginController {
 		return this.loginservices.getUserId(username);
 
 	}
+	
+	
 
 	@RequestMapping(value = "/userLogin", method = RequestMethod.POST)
 	@ResponseBody
