@@ -42,6 +42,7 @@ import com.LoginRegistration.services.LoginServices;
 import com.google.gson.Gson;
 
 
+//this.loginservices.mthodName(); points to the method in the LoginServices.java file
 //@Controller
 @RestController 
 @CrossOrigin("*")
@@ -69,6 +70,7 @@ public class LoginController {
 
 	String sessionusername;
 
+	//this api is used to get the userid of the logged in user.
 	@PostMapping("/getUserId")
 	@ResponseBody
 	public int getUserId(@RequestBody String username) {
@@ -78,7 +80,7 @@ public class LoginController {
 	}
 	
 	
-
+	//this api is used to get login details from user
 	@RequestMapping(value = "/userLogin", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional
@@ -95,6 +97,7 @@ public class LoginController {
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
 	
+	//used to get the role of the logged in user
 	@RequestMapping(value="/userRole", method = RequestMethod.POST)
 	public @ResponseBody Login userRole(@RequestBody Login login, HttpServletRequest response)throws Exception {
 		System.out.println("login---->"+login);
@@ -106,6 +109,7 @@ public class LoginController {
 		return userdetails;
 	}
 
+	//used to register details from new user
 	@PostMapping("/newUserRegistration")
 	public String registeruser(@RequestBody Userdata newuser) throws UserNotFoundException {
 		loginservices.registeruser(newuser);
@@ -114,6 +118,7 @@ public class LoginController {
 
 	}
 
+	//this api is used when user forgets the password, he he takes securityId and securityAns
 	@PostMapping("/forgotPassword")
 	public void getIdAndAns(@RequestBody Password fp, HttpServletRequest request, HttpServletResponse response)
 			throws UserNotFoundException, ServletException, IOException {
@@ -127,6 +132,7 @@ public class LoginController {
 
 	}
 
+	//It is used to set new password
 	@PostMapping("/setPassword")
 	public ResponseEntity<String> setpassword(@RequestBody Password password, HttpServletRequest request) {
 		System.out.println(password);
@@ -136,7 +142,9 @@ public class LoginController {
 		return this.loginservices.setpassword(password);
 
 	}
-
+	
+	
+	//it is used to get security id and asnwer from user.
 	@PostMapping("/getSecurityIdAndAns")
 	public void getSecurityIdAndAns(@RequestBody Password fp, HttpServletRequest request, HttpServletResponse response)
 			throws UserNotFoundException, IOException {
@@ -150,6 +158,7 @@ public class LoginController {
 		}
 	}
 
+	//updates the password of existing user
 	@PostMapping("/updatePassword")
 	public ResponseEntity<String> updatePassword(@RequestBody Password password, HttpServletRequest request) {
 		Object tokenUsername = decodeToken(password.getToken());
@@ -160,6 +169,7 @@ public class LoginController {
 		return new ResponseEntity<String>("Password entered already exist!", HttpStatus.OK);
 	}
 
+	//It is used to decode token existing , this gson Gson().fromJson(payload, Map.class)  is used parse Token and get username form token
 	@PostMapping("/decodeToken")
 	@ResponseBody
 	public Object decodeToken(@RequestBody String token) {
@@ -177,6 +187,7 @@ public class LoginController {
 		return output;
 	}
 
+	//It is used to get profile details of user 
 	@PostMapping("/profile")
 	@ResponseBody
 	public Profile getProfileDetails(@RequestBody JwtResponse jwtresponse, HttpServletResponse response)
@@ -186,6 +197,7 @@ public class LoginController {
 		return profiledetails;
 	}
 	
+	//Retrieves user address details based on the authentication token
 	@PostMapping("/userAddressProfile")
 	@ResponseBody
 	public Map<String, Object> getUserAddressDetails(@RequestBody JwtResponse jwtresponse, HttpServletResponse response)
@@ -197,7 +209,7 @@ public class LoginController {
 		return useraddressdetails; //useraddressdetails
 	}
 	
-
+	//Updates the user's profile details
 	@PostMapping("/updateProfileDetails")
 	@ResponseBody
 	public ResponseEntity<String> updateuserdetails(@RequestBody Profile profile, HttpServletRequest request)
@@ -207,7 +219,7 @@ public class LoginController {
 		return this.loginservices.updateuserdetails(profile);
 	}
 	
-	
+	//Updates the user's address details
 	@PostMapping("/updateUserAddressDetails")
 	@ResponseBody
 	public ResponseEntity<String> updateuseraddressdetails(@RequestBody Profile profile, HttpServletRequest request)
@@ -216,6 +228,8 @@ public class LoginController {
 		profile.setUsername((String) tokenUsername);
 		return this.loginservices.updateuseraddressdetails(profile);
 	}
+	
+	//deletes the user's address details
 	@PostMapping("/deleteAddress")
 	@ResponseBody
 	public ResponseEntity<String> deleteAddress(@RequestBody UserAddress userAddress, HttpServletRequest request)throws UserNotFoundException{
@@ -228,6 +242,7 @@ public class LoginController {
 		return this.loginservices.deleteAddress(userAddress, userid);
 	}
 	
+	//edits the user's address details
 	@PostMapping("/editAddress")
 	@ResponseBody
 	public ResponseEntity<String> editAddress(@RequestBody UserAddress userAddress, HttpServletRequest request) throws UserNotFoundException{ //Userdata userData
@@ -240,7 +255,7 @@ public class LoginController {
         return this.loginservices.editAddress(userAddress, userid);
 	}  
 	
-	
+	//Adds a new address for the user, restricting to a maximum of 5 addresses per user
 	@RequestMapping(value = "/addAddress", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public void schedulingPickUpAddr(@RequestBody Profile userData) throws UserNotFoundException{ //Userdata userData
